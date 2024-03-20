@@ -40,7 +40,7 @@ The run order of both the shell launch scripts, and the file it launches are out
   <br />
   2\) [launch_final_packing.sh](./standard_deviation_study/launch_final_packing.sh) &#8594; [final_packing.py](./standard_deviation_study/final_packing.py)
   <br />
-  3\) [standard_deviation_result_graph.py](./standard_deviation_study/standard_deviation_result_graph.py)
+  3\) [standard_deviation_results_graph.py](./standard_deviation_study/standard_deviation_results_graph.py)
   <br />
 
 </details>
@@ -51,7 +51,7 @@ The run order of both the shell launch scripts, and the file it launches are out
   <br />
   2\) [launch_final_packing.sh](./skew_study/launch_final_packing.sh) &#8594; [final_packing.py](./skew_study/final_packing.py)
   <br />
-  3\) [skew_result_graph.py](./skew_study/skew_result_graph.py)
+  3\) [skew_results_graph.py](./skew_study/skew_results_graph.py)
   <br />
 
 </details>
@@ -64,6 +64,6 @@ The run order of both the shell launch scripts, and the file it launches are out
   <br />
   2\) [launch_final_packing.sh](./kurtosis_study/launch_final_packing.sh) &#8594; [final_packing.py](./kurtosis_study/final_packing.py)
   <br />
-  3\) [kurtosis_result_graph.py](./kurtosis_study/kurtosis_result_graph.py)
+  3\) [kurtosis_results_graph.py](./kurtosis_study/kurtosis_results_graph.py)
   <br />
 
