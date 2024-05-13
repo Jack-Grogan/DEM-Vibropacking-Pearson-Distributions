@@ -333,11 +333,23 @@ def constant_V_distribution(r, p, mu, sigma, N_particles):
         p_V[i] = np.array(p_V[i])
 
     return p_V, const_vol_N, norm_V
-        
 
-def mass_mean_radii(V, N):
-    r = (V/N * 3/(4*np.pi))**(1/3)
-    return r
+        
+def D_50_calculator(N_split, x_split, V):
+    cum_V_bank = np.array([0])
+    i = -1
+    while cum_V_bank[-1] <= V/2:
+        i += 1
+        if i == 0: 
+            cum_V = N_split[i]*4/3*np.pi*(x_split[i]/2)**3
+        else:
+            cum_V = N_split[i]*4/3*np.pi*(x_split[i]/2)**3 + cum_V_bank[-1]
+        
+        cum_V_bank = np.append(cum_V_bank, cum_V)
+        
+    D_50 = x_split[i - 1] + (x_split[i] - x_split[i - 1])*(V/2 - cum_V_bank[-2])/(cum_V_bank[-1] - cum_V_bank[-2])
+        
+    return D_50, cum_V_bank
     
 
 #%% 
@@ -407,9 +419,11 @@ V_particle_split_bar, const_vol_N, volume = constant_V_distribution(x_bar_radii,
 # Plotting distributions
 #------------------------------------------------------------------------------------------
 
-mass_mean_r = [0]*len(const_vol_N)
-for i in range(len(mass_mean_r)):
-    mass_mean_r[i] = mass_mean_radii(volume, const_vol_N[i])
+D_50 = [0]*len(V_particle_split_bar)
+cum_V_bank = [0]*len(V_particle_split_bar)
+
+for i in range(len(V_particle_split_bar)):
+    D_50[i], cum_V_bank[i] = D_50_calculator(V_particle_split_bar[i], x_bar, volume)
 
 fig, (ax1, ax3) = plt.subplots(2, 1, figsize = (10, 6), dpi = 600)
 
@@ -444,7 +458,7 @@ sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
 sm.set_array([]) 
 cb = fig.colorbar(sm, cax =cbar_ax, orientation = 'vertical', ticks=np.linspace(min(sigma),max(sigma), N_curves))
 
-sigma_mass_mean = sigma_radii/mass_mean_r
+sigma_mass_mean = sigma/D_50
 
 cb.set_ticklabels(f"{sigma_mass_mean_in:.3f}" for sigma_mass_mean_in in sigma_mass_mean)
 cb.set_label('Dimensionless Standard Deviaition of Distribution $\sigma \ / \ \overline{x}$', fontsize = 12)
