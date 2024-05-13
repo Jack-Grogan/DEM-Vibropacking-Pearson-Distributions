@@ -342,9 +342,22 @@ def list_elements_equal(lst):
     repeated = list(np.ones(len(lst))*lst[0])
     return all(repeated == lst)
 
-def mass_mean_radii(V, N):
-    r = (V/N * 3/(4*np.pi))**(1/3)
-    return r
+
+def D_50_calculator(N_split, x_split, V):
+    cum_V_bank = np.array([0])
+    i = -1
+    while cum_V_bank[-1] <= V/2:
+        i += 1
+        if i == 0: 
+            cum_V = N_split[i]*4/3*np.pi*(x_split[i]/2)**3
+        else:
+            cum_V = N_split[i]*4/3*np.pi*(x_split[i]/2)**3 + cum_V_bank[-1]
+        
+        cum_V_bank = np.append(cum_V_bank, cum_V)
+        
+    D_50 = x_split[i - 1] + (x_split[i] - x_split[i - 1])*(V/2 - cum_V_bank[-2])/(cum_V_bank[-1] - cum_V_bank[-2])
+        
+    return D_50, cum_V_bank
 
 #------------------------------------------------------------------------------------------
 # Setting Distribution Parameters 
@@ -410,11 +423,22 @@ V_particle_split_bar, const_vol_N, volume = constant_V_distribution(x_bar, p_bar
 #  Extracting data from simulations 
 #------------------------------------------------------------------------------------------
 
-mass_mean_r = [0]*len(const_vol_N)
-for i in range(len(mass_mean_r)):
-    mass_mean_r[i] = mass_mean_radii(volume, const_vol_N[i])
+#mass_mean_r = [0]*len(const_vol_N)
+#for i in range(len(mass_mean_r)):
+#    mass_mean_r[i] = mass_mean_radii(volume, const_vol_N[i])
     
-mass_mean_d = [2*mean_r for mean_r in mass_mean_r]
+#mass_mean_d = [2*mean_r for mean_r in mass_mean_r]
+
+#mass_mean_d = [0]*len(V_particle_split_bar)
+#for i in range(len(V_particle_split_bar)):
+#    mass_mean_d[i] = mass_mean_diameter(V_particle_split_bar[i], x_bar)
+
+D_50 = [0]*len(V_particle_split_bar)
+cum_V_bank = [0]*len(V_particle_split_bar)
+
+for i in range(len(V_particle_split_bar)):
+    D_50[i], cum_V_bank[i] = D_50_calculator(V_particle_split_bar[i], x_bar, volume)
+
 
 study = os.path.join("mean_particle_diameter_10_mm")
 
@@ -606,7 +630,7 @@ ax4.set_xlabel("Particle Radii (m)", fontsize = 11.5)
 df = pd.read_csv(r"final_packing_results.csv")
 df.rename({'Unnamed: 0': 'sigma'}, axis=1, inplace=True)
 df_sigma = np.asarray(df['sigma'])
-df_sigma_dimensionless = df_sigma/mass_mean_d
+df_sigma_dimensionless = df_sigma/D_50
 
 repeat_columns = [column for column in df.columns if column.startswith("seed")]
 df_repeat_T = df[repeat_columns].T
